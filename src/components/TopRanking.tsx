@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useAniListTopRanking } from '@/hooks/useAniListData';
+import { useFirebaseTopRanking, useFirebaseTrending } from '@/hooks/useFirebaseData';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSafeMode, filterNSFW } from '@/contexts/SafeModeContext';
 import { getThaiTitle } from '@/utils/thaiTitles';
@@ -15,10 +15,10 @@ export default function TopRanking({ onAnimeClick }: TopRankingProps) {
     const { t, language } = useLanguage();
     const [sortBy, setSortBy] = useState<'score' | 'popularity'>('score');
 
-    const { animeList: rawAnimeList, loading, error, refetch } = useAniListTopRanking(sortBy, {
-        enableCache: true,
-        limit: 50,
-    });
+    // Use cached Top Rated for score, cached Trending for popularity
+    const { animeList: rawAnimeList, loading, error, refetch } = sortBy === 'score'
+        ? useFirebaseTopRanking()
+        : useFirebaseTrending();
     const { safeMode } = useSafeMode();
     const animeList = filterNSFW(rawAnimeList, safeMode);
 
@@ -35,9 +35,10 @@ export default function TopRanking({ onAnimeClick }: TopRankingProps) {
 
     if (error) {
         return (
-            <div className="flex flex-col items-center justify-center gap-3 h-64">
-                <p className="text-[13px] text-red-400">⚠️ {error}</p>
-                <button onClick={refetch} className="text-[13px] text-white/40 underline underline-offset-2 hover:text-white/60">
+            <div className="flex flex-col items-center justify-center h-64 text-red-400 gap-4">
+                <p>{error instanceof Error ? error.message : 'Failed to load rankings'}</p>
+                <button
+                    onClick={() => refetch()} className="text-[13px] text-white/40 underline underline-offset-2 hover:text-white/60">
                     {language === 'th' ? 'ลองใหม่' : 'Retry'}
                 </button>
             </div>

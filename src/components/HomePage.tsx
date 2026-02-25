@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
-import { useAniListTrending, useAniListTopRanking, useAniListCurrentAiringAnime, useAniListUpcomingAnime } from '@/hooks/useAniListData';
+import { useFirebaseTrending, useFirebaseTopRanking, useFirebaseCurrentAiring, useFirebaseUpcoming } from '@/hooks/useFirebaseData';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSafeMode, filterNSFW } from '@/contexts/SafeModeContext';
 import { getThaiTitle } from '@/utils/thaiTitles';
@@ -444,10 +444,10 @@ export default function HomePage({ onAnimeClick }: HomePageProps) {
     const { language } = useLanguage();
     const { safeMode } = useSafeMode();
 
-    const { animeList: trending, loading: trendingLoading } = useAniListTrending({ enableCache: true, limit: 20 });
-    const { animeList: topRated, loading: topRatedLoading } = useAniListTopRanking('score', { enableCache: true, limit: 20 });
-    const { animeList: airing, loading: airingLoading } = useAniListCurrentAiringAnime({ enableCache: true, limit: 20 });
-    const { animeList: upcoming, loading: upcomingLoading } = useAniListUpcomingAnime({ enableCache: true, limit: 20 });
+    const { animeList: trending, loading: trendingLoading } = useFirebaseTrending();
+    const { animeList: topRated, loading: topRatedLoading } = useFirebaseTopRanking();
+    const { animeList: airing, loading: airingLoading } = useFirebaseCurrentAiring();
+    const { animeList: upcoming, loading: upcomingLoading } = useFirebaseUpcoming();
 
     // Combine all anime from all pools, deduplicate by ID, and randomly pick 5
     const heroAnimeList = useMemo(() => {

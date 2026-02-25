@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Anime } from '@/types/anime';
-import { useAniListCurrentAiringAnime, useAniListSeasonalAnime, useAniListUpcomingAnime } from '@/hooks/useAniListData';
+import { useFirebaseCurrentAiring, useFirebaseUpcoming } from '@/hooks/useFirebaseData';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSafeMode, filterNSFW } from '@/contexts/SafeModeContext';
 import { getThaiTitle } from '@/utils/thaiTitles';
@@ -13,7 +13,7 @@ interface SeasonalAnimeListProps {
 
 export default function SeasonalAnimeList({ onAnimeClick }: SeasonalAnimeListProps) {
   const { t, language } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'seasonal' | 'current' | 'upcoming'>('current');
+  const [activeTab, setActiveTab] = useState<'seasonal' | 'current' | 'upcoming'>('seasonal');
 
   const { animeList: seasonalAnime, loading: seasonalLoading, error: seasonalError, refetch: seasonalRefetch } = useAniListSeasonalAnime({
     enableCache: true
@@ -23,15 +23,18 @@ export default function SeasonalAnimeList({ onAnimeClick }: SeasonalAnimeListPro
     enableCache: true
   });
 
-  const { animeList: upcomingAnime, loading: upcomingLoading, error: upcomingError, refetch: upcomingRefetch } = useAniListUpcomingAnime({
-    enableCache: true
-  });
+  // Use Firebase hooks
+  const { animeList: firebaseCurrentAiring, loading: firebaseCurrentLoading, error: firebaseCurrentError, refetch: firebaseCurrentRefetch } = useFirebaseCurrentAiring();
+  const { animeList: firebaseUpcoming, loading: firebaseUpcomingLoading, error: firebaseUpcomingError, refetch: firebaseUpcomingRefetch } = useFirebaseUpcoming();
 
   const getCurrentData = () => {
     switch (activeTab) {
-      case 'seasonal': return { animeList: seasonalAnime, loading: seasonalLoading, error: seasonalError, refetch: seasonalRefetch };
-      case 'current': return { animeList: currentAnime, loading: currentLoading, error: currentError, refetch: currentRefetch };
-      case 'upcoming': return { animeList: upcomingAnime, loading: upcomingLoading, error: upcomingError, refetch: upcomingRefetch };
+      case 'seasonal': // Fallback seasonal to airing since we didn't cache seasonal separately
+        return { animeList: firebaseCurrentAiring, loading: firebaseCurrentLoading, error: firebaseCurrentError, refetch: firebaseCurrentRefetch };
+      case 'current': // 'current' also uses firebaseCurrentAiring
+        return { animeList: firebaseCurrentAiring, loading: firebaseCurrentLoading, error: firebaseCurrentError, refetch: firebaseCurrentRefetch };
+      case 'upcoming':
+        return { animeList: firebaseUpcoming, loading: firebaseUpcomingLoading, error: firebaseUpcomingError, refetch: firebaseUpcomingRefetch };
       default: return { animeList: [], loading: false, error: null, refetch: () => { } };
     }
   };
@@ -51,9 +54,10 @@ export default function SeasonalAnimeList({ onAnimeClick }: SeasonalAnimeListPro
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center gap-3 h-64">
-        <p className="text-[13px] text-red-400">⚠️ {error}</p>
-        <button onClick={refetch} className="text-[13px] text-white/40 underline underline-offset-2 hover:text-white/60">
+      <div className="flex flex-col items-center justify-center h-64 text-red-400 gap-4">
+        <p>{error instanceof Error ? error.message : 'Error passing data'}</p>
+        <button
+          onClick={() => refetch()} className="text-[13px] text-white/40 underline underline-offset-2 hover:text-white/60">
           {t('error.try_again')}
         </button>
       </div>
