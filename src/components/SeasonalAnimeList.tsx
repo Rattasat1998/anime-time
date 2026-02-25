@@ -15,13 +15,6 @@ export default function SeasonalAnimeList({ onAnimeClick }: SeasonalAnimeListPro
   const { t, language } = useLanguage();
   const [activeTab, setActiveTab] = useState<'seasonal' | 'current' | 'upcoming'>('seasonal');
 
-  const { animeList: seasonalAnime, loading: seasonalLoading, error: seasonalError, refetch: seasonalRefetch } = useAniListSeasonalAnime({
-    enableCache: true
-  });
-
-  const { animeList: currentAnime, loading: currentLoading, error: currentError, refetch: currentRefetch } = useAniListCurrentAiringAnime({
-    enableCache: true
-  });
 
   // Use Firebase hooks
   const { animeList: firebaseCurrentAiring, loading: firebaseCurrentLoading, error: firebaseCurrentError, refetch: firebaseCurrentRefetch } = useFirebaseCurrentAiring();
