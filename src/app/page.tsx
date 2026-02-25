@@ -36,27 +36,30 @@ function HomeContent() {
       {/* Top nav bar */}
       <header className="sticky top-0 z-20 bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/5">
         <div className="px-4 sm:px-6 h-14 flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-semibold tracking-tight text-white">
-              Anime Calendar
-            </span>
-          </div>
+          {/* Left section: Logo + Tabs */}
+          <div className="flex items-center gap-6 sm:gap-10">
+            {/* Logo */}
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-semibold tracking-tight text-white">
+                Anime Calendar
+              </span>
+            </div>
 
-          {/* Center tabs — HIDDEN on mobile, shown on md+ */}
-          <div className="hidden md:flex items-center gap-1 rounded-lg p-1 bg-white/5">
-            {TABS.map(({ key, th, en }) => (
-              <button
-                key={key}
-                onClick={() => setMainTab(key)}
-                className={`px-3 sm:px-4 py-1.5 text-sm font-medium rounded-md transition-all ${mainTab === key
-                  ? 'bg-white/10 text-white shadow-sm'
-                  : 'text-white/40 hover:text-white/70'
-                  }`}
-              >
-                {language === 'th' ? th : en}
-              </button>
-            ))}
+            {/* Navigation tabs — HIDDEN on mobile, shown on md+ */}
+            <div className="hidden md:flex items-center gap-1 rounded-lg p-1 bg-white/5">
+              {TABS.map(({ key, th, en }) => (
+                <button
+                  key={key}
+                  onClick={() => setMainTab(key)}
+                  className={`px-3 sm:px-4 py-1.5 text-sm font-medium rounded-md transition-all ${mainTab === key
+                    ? 'bg-white/10 text-white shadow-sm'
+                    : 'text-white/40 hover:text-white/70'
+                    }`}
+                >
+                  {language === 'th' ? th : en}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Right controls */}
