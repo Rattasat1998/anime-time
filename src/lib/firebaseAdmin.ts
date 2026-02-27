@@ -27,5 +27,8 @@ if (!admin.apps.length) {
 }
 
 const adminDb = admin.apps.length ? admin.firestore() : null;
+if (adminDb) {
+    adminDb.settings({ ignoreUndefinedProperties: true });
+}
 
 export { adminDb };

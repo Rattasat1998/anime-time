@@ -60,8 +60,8 @@ export async function GET(request: Request) {
             updatedAt: new Date().toISOString(),
         });
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('❌ Failed to sync anime data:', error);
-        return NextResponse.json({ error: 'Failed to sync data', details: error }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to sync data', details: error?.message || String(error) }, { status: 500 });
     }
 }
