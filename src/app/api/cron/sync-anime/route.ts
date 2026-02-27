@@ -11,6 +11,10 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    if (!adminDb) {
+        return NextResponse.json({ error: 'Firebase Admin not initialized. Check server environment variables.' }, { status: 500 });
+    }
+
     try {
         console.log('🔄 Starting Anime sync from AniList to Firestore...');
 
@@ -35,7 +39,7 @@ export async function GET(request: Request) {
         // Helper function to set collection data in a single document for easy retrieval
         // Since a document is limited to 1MB, 50 items (around 50-100KB) fits easily in a single document
         const setCache = (id: string, data: any[]) => {
-            const docRef = adminDb.collection('cache_anime').doc(id);
+            const docRef = adminDb!.collection('cache_anime').doc(id);
             batch.set(docRef, {
                 items: data,
                 updatedAt: new Date().toISOString()
