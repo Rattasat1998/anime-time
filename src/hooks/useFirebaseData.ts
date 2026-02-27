@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, getDocFromCache } from 'firebase/firestore';
 import { Anime } from '@/types/anime';
 
 // Type definition for what is stored in Firestore
@@ -24,7 +24,19 @@ function useFirebaseCache(collectionId: 'trending' | 'topRated' | 'airing' | 'up
             try {
                 setLoading(true);
                 const docRef = doc(db, 'cache_anime', collectionId);
-                const docSnap = await getDoc(docRef);
+
+                // Try server first, fallback to local cache if offline
+                let docSnap;
+                try {
+                    docSnap = await getDoc(docRef);
+                } catch (fetchErr: any) {
+                    if (fetchErr?.message?.includes('offline') || fetchErr?.code === 'unavailable') {
+                        console.warn(`Client offline, trying cache for ${collectionId}...`);
+                        docSnap = await getDocFromCache(docRef);
+                    } else {
+                        throw fetchErr;
+                    }
+                }
 
                 if (docSnap.exists()) {
                     const data = docSnap.data() as FirestoreAnimeCache;
